@@ -1,0 +1,15 @@
+{
+  "name": "vmud",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "2.5.11",
+    "handlebars": "~1.0.7",
+    "connect": "~2.6.2",
+    "socket.io": "~0.9.11",
+	"cookie": "~0.1.0",
+  }
+}
