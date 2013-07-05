@@ -1,15 +1,28 @@
 {
   "name": "vmud",
   "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "node app.js"
-  },
+  "description": "html client for multi user dungeon games",
+  "main": "app.js",
   "dependencies": {
-    "express": "2.5.11",
-    "handlebars": "~1.0.7",
     "connect": "~2.6.2",
-    "socket.io": "~0.9.11",
-	"cookie": "~0.1.0",
-  }
+    "express": "~2.5.11",
+    "cookie": "~0.1.0",
+    "handlebars": "~1.0.12",
+    "socket.io": "~0.9.16",
+    "ansi-to-html": "~0.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/vitxd/vmud.git"
+  },
+  "keywords": [
+    "mud",
+    "client"
+  ],
+  "author": "vitxd",
+  "license": "BSD"
 }

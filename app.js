@@ -8,7 +8,8 @@ var net 			= require('net'),
 	cookie 			= require('cookie'),
 	parseCookie 	= require('connect').utils.parseSignedCookie,
 	secret 			= 'ioajsdfp9ay97fdhsiufhgasd87ftyas7dtfgaps987dfyg',
-	session 		= require('./libs/sessionManagement.js')
+	session 		= require('./libs/sessionManagement.js'),
+	Converter 		= require('ansi-to-html')
 	;
 
 app.configure(function(){
@@ -79,9 +80,9 @@ sio.sockets
 		socket
 			.on('setUserInfo', function(data){	
 				var i;
-				if((i = session.indexOf(socket.id)) === null){
+				if((i = session.indexOf(cookie['vmud.sid'])) === null){
 					var sess = new Object();
-					sess.sessionId = socket.id;
+					sess.sessionId = cookie['vmud.sid'];
 					//sess.userId = data.userId;
 					//sess.username = data.username;
 					//sess.role = data.role;
@@ -90,33 +91,51 @@ sio.sockets
 				} else {
 					var s = session.activate(i);
 					console.log('User identified by sessionid "' + s + '" refreshed the page');
+					console.log(session.getSessionById(socket.id));
 				}
 			})
 			.on('connectTo', function(data){
 
-				var user 	= session.getSessionById(socket.id),
+				var user 	= session.getSessionById(cookie['vmud.sid']),
 					client  = net.connect(data, function(){
 						console.log(user.userId + ' connected!');
+						user.connected = true;
 					});
 				user.client = client;
 
 				user.client.on('data', function(data){
-					socket.emit('socket output',{ data : data.toString() });
-				});
+					var converter = new Converter(),
+						text 		= data.toString();
+					text = text 
+								.replace(/ /g, '&nbsp;')
+								.replace(/\r/gm,'')
+								.replace(/\n/gm,'<br />');
+					text = converter.toHtml(text);
+					socket.emit('socket output',{ data : text });
+				})
+				.on('disconnect', function(){
+					console.log('bye!');
+					user.connected = false;
+				})
+				;
 
 
 			})
 			.on('web input', function(data){
 				console.log('Trying to write: ' + data)
-				session
-					.getSessionById(socket.id)
-					.client
-					.write(data + "\n");
-			})
 
+				var user = session.getSessionById(cookie['vmud.sid']);
+
+				if(user.connected){
+					user.client.write(data + "\n");
+				} else {
+					console.log('Connection closed...');
+					socket.emit('socket output', {data : 'Connection lost'});
+				}
+			})
 			.on('disconnect', function () {
 				console.log('Disconnected received by ' + socket.id);
-				var user = session.getSessionById(socket.id);
+				var user = session.getSessionById(cookie['vmud.sid']);
 				if(user !== null){
 					console.log('A socket with sessionID ' + user.sessionId + ' disconnected!');
 					// clear the socket interval to stop refreshing the session

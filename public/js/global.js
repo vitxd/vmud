@@ -28,6 +28,7 @@ $(document)
 		$('#connect')
 			.on('click', function(){
 				socket.emit('connectTo', {host: 'leu.mclink.it', port: 6000});
+				$('#cmd').focus();
 			});
 
 		$('#cmd').focus();
@@ -42,8 +43,12 @@ $(document)
 			});
 		socket.on('socket output', function(data){
 			var div = $('#screen');
+			console.log(data.data);
+			text = data.data;
+
+
 			div
-				.html(div.text() + $.trim(data.data))
+				.html(div.html() + text)
 				.scrollTop(div[0].scrollHeight);;
 		});
 	});
