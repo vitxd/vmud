@@ -17,14 +17,6 @@ function getCookie(c_name) {
 	return c_value;
 }
 
-function debug(str){
-	console.log('----- START -----');
-	for(var i = 0 ; i < str.length ; i++){
-		console.log(str.charAt(i) + ' -> ' + str.charCodeAt(i));
-	}
-	console.log('----- END -----');
-}
-
 var strip_char = [65533, 1, 0];
 
 $(document)
@@ -35,7 +27,21 @@ $(document)
 			screen	= $('#screen'),
 			connected = false;
 			;
-		
+
+		$('*').keydown(function(e){
+			e.stopPropagation();
+			switch(e.which){
+				case 8:
+					if(!cmd.is(':focus')){
+						e.preventDefault();
+					}
+					break;
+
+				default:
+					console.log(e.which);
+			}
+		});
+
 		socket.emit('setUserInfo',{});
 
 		$('.panel')
