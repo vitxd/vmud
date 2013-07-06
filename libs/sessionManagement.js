@@ -84,27 +84,32 @@ var sessionManagement = {
     
     return usersByRole;
   },
-  removeUnactive: function() {
-    for(var i in unactive) {
-      if(unactive[i].time < (Math.round(new Date().getTime() / 1000) - 20 * 60 * 60)){
-        var session = this.getSessionById(unactive[i].sessionId);
-        session.client.end();
-        this.removeByUserId(session.sessionId);
-      }
+	removeUnactive: function(callback) {
+		var num = 0;
+    	for(var i in unactive) {
+			if(unactive[i].time < (Math.round(new Date().getTime() / 1000) - 60)){
+				var session = this.getSessionById(unactive[i].sessionId);
+				if(typeof callback === 'function'){
+					callback(session);
+				}
+				this.remove(session.sessionId);
+				num++;
+			}
+		}
+		return num;
+	},
+	unactivate: function(sessionId){
+		console.log('Unactivating ' + sessionId);
+		unactive.push({time: Math.round(new Date().getTime() / 1000), sessionId : sessionId});
+	},
+	activate: function(sessionId) {
+		for(var i in unactive) {
+			if(unactive[i].sessionId == sessionId){
+				unactive.splice(i, 1);
+			}
+		}
+		return sessionId;
 	}
-  },
-  unactivate: function(sessionId){
-    unactive.push({time: Math.round(new Date().getTime() / 1000), sessionId : sessionId});
-  },
-  activate: function(index) {
-	var sessionId = this.sessions[index].sessionId;
-    for(var i in unactive) {
-      if(unactive[i].sessionId == sessionId)
-        unactive.splice(i, 1);
-    }
-
-	return sessionId;
-  }
 };
 
 module.exports = sessionManagement;

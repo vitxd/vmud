@@ -17,10 +17,21 @@ function getCookie(c_name) {
 	return c_value;
 }
 
+function debug(str){
+	console.log('----- START -----');
+	for(var i = 0 ; i < str.length ; i++){
+		console.log(str.charAt(i) + ' -> ' + str.charCodeAt(i));
+	}
+	console.log('----- END -----');
+}
+
+var strip_char = [65533, 1, 0];
 
 $(document)
 	.ready(function(){
-		var socket = io.connect('http://localhost');
+		var url = 'http://localhost/',
+			socket = io.connect(url);
+		console.log(url);
 		console.log(getCookie('vmud.sid'));
 		
 		socket.emit('setUserInfo',{});
@@ -39,13 +50,29 @@ $(document)
 					console.log(command)
 					socket.emit('web input', command);
 					$(this).select();
+					if($(this).attr('type') == 'password'){
+						$(this).val('');
+						$(this).attr('type', 'text');
+					}
 				}
 			});
 		socket.on('socket output', function(data){
-			var div = $('#screen');
-			console.log(data.data);
-			text = data.data;
+			var div  = $('#screen'),
+				text = data.data;
 
+			if(text.indexOf(String.fromCharCode(65533)) !== false){
+				var tmp = '';
+				for(var i = 0 ; i < text.length ; i++){
+					if($.inArray(text.charCodeAt(i), strip_char) < 0){
+						tmp += text.charAt(i);
+					}
+				}
+				text = tmp;
+
+				if(/^Password:/.test(text)){
+					$('#cmd').val('').attr('type', 'password');
+				}
+			}
 
 			div
 				.html(div.html() + text)

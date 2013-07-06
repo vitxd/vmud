@@ -1,11 +1,11 @@
 var net 			= require('net'),
-	express			= require('express'),
+    express 		= require('express'),
 	root 			= require('./libs/router.js'),
-    app				= module.exports = express.createServer(),
+	app 			= module.exports = express.createServer(),
 	MemoryStore 	= express.session.MemoryStore,
 	sessionStore 	= new MemoryStore({ reapInterval: 60000 * 10 }),
 	io 				= require('socket.io'),
-	cookie 			= require('cookie'),
+	Cookie 			= require('cookie'),
 	parseCookie 	= require('connect').utils.parseSignedCookie,
 	secret 			= 'ioajsdfp9ay97fdhsiufhgasd87ftyas7dtfgaps987dfyg',
 	session 		= require('./libs/sessionManagement.js'),
@@ -48,118 +48,116 @@ app.listen(3000, function(){
     console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 });
 
+setInterval(function(){
+	console.log('clearing expired cache');
+	var num = session.removeUnactive(function(session){
+		session.socket.close();
+		session.client.end();
+	});
+	console.log('Cleared ' + num + ' cache');
+},60000);
 
 var sio = io.listen(app);
 
-sio.set('authorization', function (data, accept) {
-	if (data.headers.cookie) {
-		data.cookie = cookie.parse(data.headers.cookie); //parseCookie(data.headers.cookie);
-		data.sessionID = parseCookie(data.cookie['vmud.sid'], secret);
-		// (literally) get the session data from the session store
-		sessionStore.get(data.sessionID, function (err, session) {
-			if (err || !session) {
-				// if we cannot grab a session, turn down the connection
-				accept('Error', false);
-			} else {
-				// save the session data and accept the connection
-				data.session = session;
-				accept(null, true);
-			}
-		});
-	} else {
-		return accept('No cookie transmitted.', false);
-	}
-});
-
-
-sio.sockets
-	.on('connection', function (socket) {
-		console.log('IO connect');
-		console.log('A socket with sessionID ' + socket.id + ' connected!');
-		var cookie = socket.handshake.cookie;
-		socket
-			.on('setUserInfo', function(data){	
-				var i;
-				if((i = session.indexOf(cookie['vmud.sid'])) === null){
-					var sess = new Object();
-					sess.sessionId = cookie['vmud.sid'];
-					//sess.userId = data.userId;
-					//sess.username = data.username;
-					//sess.role = data.role;
-					sess.cookie = cookie['vmud.sid'];
-					session.add(sess);
+sio
+	.set('authorization', function (data, accept) {
+		if (data.headers.cookie) {
+			data.cookie = Cookie.parse(data.headers.cookie);
+			data.sessionID = parseCookie(data.cookie['vmud.sid'], secret);
+			// (literally) get the session data from the session store
+			sessionStore.get(data.sessionID, function (err, session) {
+				if (err || !session) {
+					// if we cannot grab a session, turn down the connection
+					accept('Error', false);
 				} else {
-					var s = session.activate(i);
-					console.log('User identified by sessionid "' + s + '" refreshed the page');
-					console.log(session.getSessionById(socket.id));
-				}
-			})
-			.on('connectTo', function(data){
-
-				var user 	= session.getSessionById(cookie['vmud.sid']),
-					client  = net.connect(data, function(){
-						console.log(user.userId + ' connected!');
-						user.connected = true;
-					});
-				user.client = client;
-
-				user.client.on('data', function(data){
-					var converter = new Converter(),
-						text 		= data.toString();
-					text = text 
-								.replace(/ /g, '&nbsp;')
-								.replace(/\r/gm,'')
-								.replace(/\n/gm,'<br />');
-					text = converter.toHtml(text);
-					socket.emit('socket output',{ data : text });
-				})
-				.on('disconnect', function(){
-					console.log('bye!');
-					user.connected = false;
-				})
-				;
-
-
-			})
-			.on('web input', function(data){
-				console.log('Trying to write: ' + data)
-
-				var user = session.getSessionById(cookie['vmud.sid']);
-
-				if(user.connected){
-					user.client.write(data + "\n");
-				} else {
-					console.log('Connection closed...');
-					socket.emit('socket output', {data : 'Connection lost'});
-				}
-			})
-			.on('disconnect', function () {
-				console.log('Disconnected received by ' + socket.id);
-				var user = session.getSessionById(cookie['vmud.sid']);
-				if(user !== null){
-					console.log('A socket with sessionID ' + user.sessionId + ' disconnected!');
-					// clear the socket interval to stop refreshing the session
-					session.unactivate(user.sessionId);
-					// .client.remove(socket.id);
+					// save the session data and accept the connection
+					data.session = session;
+					accept(null, true);
 				}
 			});
+		} else {
+			return accept('No cookie transmitted.', false);
+		}
+	})
+	.set('transport', ['websocket'])
+	.sockets
+		.on('connection', function (socket) {
+			console.log('IO connect');
+			console.log('A websocket with sessionID ' + socket.id + ' connected!');
+			var cookie = socket.handshake.cookie;
+			socket
+				.on('setUserInfo', function(data){
+					var user = session.getSessionById(cookie['vmud.sid']);
+					if(user === null){
+						var user = new Object();
+						user.sessionId = cookie['vmud.sid'];
+						user.cookie = cookie['vmud.sid'];
+						session.add(user);
+					} else {
+						var s = session.activate(user.sessionId);
+						console.log('User identified by sessionid "' + s + '" refreshed the page');
+						console.log(user);
+					}
+					user.socket = socket;
+				})
+				.on('connectTo', function(data){
+
+					var user 	= session.getSessionById(cookie['vmud.sid']),
+						client  = net.connect(data, function(){
+							console.log(user.userId + ' connected!');
+							user.connected = true;
+						});
+					user.client = client;
+
+					user.client.on('data', function(data){
+						console.log('incoming data');
+
+						var converter = new Converter(),
+							text 		= data.toString();
+						text = text
+									.replace(/ /g, '&nbsp;')
+									.replace(/\r/gm,'')
+									.replace(/\n/gm,'<br />');
+						text = converter.toHtml(text);
+						if(user.connected){
+							user.socket.emit('socket output',{ data : text });
+						} else {
+							console.log('Ehm... no one listening...');
+
+						}
+					})
+					.on('disconnect', function(){
+						console.log('socket disconnected!!');
+						user.connected = false;
+					})
+					;
 
 
-	/*
-	// setup an inteval that will keep our session fresh
-	var intervalID = setInterval(function () {
-		// reload the session (just in case something changed,
-		// we don't want to override anything, but the age)
-		// reloading will also ensure we keep an up2date copy
-		// of the session with our connection.
-		hs.session.reload( function () {
-			// "touch" it (resetting maxAge and lastAccess)
-			// and save it back again.
-			hs.session.touch().save();
+				})
+				.on('web input', function(data){
+					console.log('Trying to write: ' + data)
+
+					var user = session.getSessionById(cookie['vmud.sid']);
+
+					if(user.connected){
+						user.client.write(data + "\n");
+					} else {
+						console.log('Connection closed...');
+						user.socket.emit('socket output', {data : 'Connection lost'});
+					}
+				})
+				.on('disconnect', function () {
+					console.log('Disconnected received by ' + socket.id);
+					var user = session.getSessionById(cookie['vmud.sid']);
+					if(user !== null){
+						console.log('A websocket with sessionID ' + user.sessionId + ' disconnected!');
+						// clear the socket interval to stop refreshing the session
+						user.connected = false;
+						session.unactivate(user.sessionId);
+						// .client.remove(socket.id);
+					}
+				});
+
 		});
-	}, 60 * 1000);
-*/
-
-	});
 
 
