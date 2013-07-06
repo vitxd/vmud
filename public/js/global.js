@@ -29,53 +29,66 @@ var strip_char = [65533, 1, 0];
 
 $(document)
 	.ready(function(){
-		var url = 'http://localhost/',
-			socket = io.connect(url);
-		console.log(url);
-		console.log(getCookie('vmud.sid'));
+		var url 	= 'http://localhost/',
+			socket 	= io.connect(url),
+			cmd		= $('#cmd'),
+			screen	= $('#screen'),
+			connected = false;
+			;
 		
 		socket.emit('setUserInfo',{});
 
-		$('#connect')
-			.on('click', function(){
-				socket.emit('connectTo', {host: 'leu.mclink.it', port: 6000});
-				$('#cmd').focus();
+		$('.panel')
+			.on('click', '#connect', function(){
+				if(!connected){
+					socket.emit('connectTo', {host: 'leu.mclink.it', port: 6000});
+					connected = true;
+					$('#cmd').focus();
+				} else {
+					screen.systemMsg('Already connected');
+				}
+			})
+			.on('click', '#disconnect', function(){
+				socket.emit('close remote connection',{});
+			})
+
+		;
+
+		cmd.focus()
+			.commandLine({
+				socket: socket,
+				screen: screen
 			});
 
-		$('#cmd').focus();
-		$('#cmd')
-			.on('keypress', function(e){
-				if(e.which == 13){
-					var command = $(this).val();
-					console.log(command)
-					socket.emit('web input', command);
-					$(this).select();
-					if($(this).attr('type') == 'password'){
-						$(this).val('');
-						$(this).attr('type', 'text');
+		socket
+			.on('socket output', function(data){
+				var div  = $('#screen'),
+					text = data.data;
+
+				if(text.indexOf(String.fromCharCode(65533)) !== false){
+					var tmp = '';
+					for(var i = 0 ; i < text.length ; i++){
+						if($.inArray(text.charCodeAt(i), strip_char) < 0){
+							tmp += text.charAt(i);
+						}
+					}
+					text = tmp;
+
+					if(/^Password:/.test(text)){
+						cmd.val('').attr('type', 'password');
 					}
 				}
-			});
-		socket.on('socket output', function(data){
-			var div  = $('#screen'),
-				text = data.data;
 
-			if(text.indexOf(String.fromCharCode(65533)) !== false){
-				var tmp = '';
-				for(var i = 0 ; i < text.length ; i++){
-					if($.inArray(text.charCodeAt(i), strip_char) < 0){
-						tmp += text.charAt(i);
-					}
-				}
-				text = tmp;
-
-				if(/^Password:/.test(text)){
-					$('#cmd').val('').attr('type', 'password');
-				}
-			}
-
-			div
-				.html(div.html() + text)
-				.scrollTop(div[0].scrollHeight);;
-		});
+				div
+					.html(div.html() + text)
+					.scrollTop(div[0].scrollHeight);;
+			})
+			.on('system output', function(data){
+				screen.systemMsg(data.data);
+			})
+			.on('remote closed', function(){
+				connected = false;
+				screen.systemMsg('#Disconnected');
+			})
+		;
 	});

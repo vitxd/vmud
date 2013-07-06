@@ -48,6 +48,7 @@ Router.prototype._setUser = function(user){
 Router.prototype.index = function(){
 	this.view
 		.addLibrary('/socket.io/socket.io.js')
+		.addLibrary('/js/cmd.js')
 		.addLibrary('/js/global.js')
 		.display('index.html');
 	this.view.debug('hello');

@@ -8,7 +8,7 @@ body,html{
 	padding: 0 10px;
 	#screen{
 		margin:0;
-		padding: 0;
+		padding: 10px;
 		background-color: #000;
 		width: 1024px;
 		height: 708px;
@@ -16,6 +16,18 @@ body,html{
 		overflow:auto;
 		font-family: courier;
 		font-size: 12px;
+        .command-message{
+          color: #FF0;
+          &:after{
+            content:"\A";
+            white-space:pre;
+          }
+        }
+        .system-message{
+          color: #C0C0C0;
+          text-transform:uppercase;
+          display:block;
+        }
 	}
 	#cmd{
 		width: 1024px;
