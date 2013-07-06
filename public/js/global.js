@@ -38,7 +38,7 @@ $(document)
 					break;
 
 				default:
-					console.log(e.which);
+//					console.log(e.which);
 			}
 		});
 

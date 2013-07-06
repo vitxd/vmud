@@ -9,7 +9,7 @@ var net 			= require('net'),
 	parseCookie 	= require('connect').utils.parseSignedCookie,
 	secret 			= 'ioajsdfp9ay97fdhsiufhgasd87ftyas7dtfgaps987dfyg',
 	session 		= require('./libs/sessionManagement.js'),
-	Converter 		= require('ansi-to-html')
+	Converter 		= require('./libs/ansi-to-html.js')
 	;
 
 app.configure(function(){
@@ -163,7 +163,6 @@ sio
 						session.unactivate(user.sessionId);
 					}
 				});
-
 		});
 
 
