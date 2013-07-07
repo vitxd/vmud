@@ -26,7 +26,14 @@ $.fn.commandLine = function(options){
 									cmd_history.splice(0,1);
 								}
 							}
-							config.socket.emit('web input', command);
+							if(command.charAt(0) == '.' && !/[^nwsedu]+/.test(command.substring(1))){
+								var path = command.substring(1);
+								for(var i = 0 ; i < path.length ; i++){
+									config.socket.emit('web input', path.charAt(i));
+								}
+							} else {
+								config.socket.emit('web input', command);
+							}
 							self.select();
 							if(self.attr('type') == 'password'){
 								self

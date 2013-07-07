@@ -78,7 +78,6 @@ $(document)
 					text = data.data;
 
 				if(text.indexOf(String.fromCharCode(65533)) !== false){
-					debug(text);
 					var tmp = '';
 					for(var i = 0 ; i < text.length ; i++){
 						if($.inArray(text.charCodeAt(i), strip_char) < 0){
