@@ -109,6 +109,14 @@ var sessionManagement = {
 			}
 		}
 		return sessionId;
+	},
+	isActive: function(sessionId){
+		for(var i in unactive){
+			if(unactive[i].sessionId == sessionId){
+				return false;
+			}
+		}
+		return true;
 	}
 };
 

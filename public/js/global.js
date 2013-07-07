@@ -16,7 +16,13 @@ function getCookie(c_name) {
 	}
 	return c_value;
 }
-
+function debug(str){
+	console.log('----- START -----');
+	for(var i = 0 ; i < str.length ; i++){
+		console.log(str.charAt(i) + ' -> ' + str.charCodeAt(i));
+	}
+	console.log('----- END -----');
+}
 var strip_char = [65533, 1, 0];
 
 $(document)
@@ -72,6 +78,7 @@ $(document)
 					text = data.data;
 
 				if(text.indexOf(String.fromCharCode(65533)) !== false){
+					debug(text);
 					var tmp = '';
 					for(var i = 0 ; i < text.length ; i++){
 						if($.inArray(text.charCodeAt(i), strip_char) < 0){

@@ -90,15 +90,12 @@ sio
 					var user = session.getSessionById(cookie['vmud.sid']);
 					if(user === null){
 						var user = new Object();
-						user.sessionId = cookie['vmud.sid'];
-						user.cookie = cookie['vmud.sid'];
-						user.connected = true;
+						user.sessionId 			= cookie['vmud.sid'];
+						user.client_connected 	= false; 	// connected to the mud
 						session.add(user);
 					} else {
-						var s = session.activate(user.sessionId);
-						user.connected = true;
-						console.log('User identified by sessionid "' + s + '" refreshed the page');
-						console.log(user);
+						session.activate(user.sessionId);
+						console.log('User identified by sessionid "' + user.sessionId + '" refreshed the page');
 					}
 					user.socket = socket;
 				})
@@ -106,6 +103,7 @@ sio
 
 					var user 	= session.getSessionById(cookie['vmud.sid']),
 						client  = net.connect(data, function(){
+							user.client_connected = true;
 							console.log(user.userId + ' connected!');
 						});
 					user.client = client;
@@ -119,18 +117,23 @@ sio
 							text = text
 										.replace(/ /g, '&nbsp;')
 										.replace(/\r/gm,'')
-										.replace(/\n/gm,'<br />');
+										.replace(/</gm, '&lt;')
+										.replace(/>/gm, '&gt;')
+										.replace(/\n/gm,'<br />')
+
+							;
 							text = converter.toHtml(text);
-							if(user.connected){
+							if(session.isActive(user.sessionId)){
 								user.socket.emit('socket output',{ data : text });
 							} else {
 								console.log('Ehm... no one listening...');
 
 							}
 						})
-						.on('disconnect', function(){
+						.on('end', function(){
 							console.log('socket disconnected!!');
-							user.socket.emit('remote closed', {disconnect: true})
+							user.socket.emit('remote closed', {disconnect: true});
+							user.client_connected = false;
 						})
 					;
 
@@ -139,7 +142,11 @@ sio
 				.on('close remote connection', function(){
 					console.log('user requested a connection close');
 					var user = session.getSessionById(cookie['vmud.sid']);
-					user.client.end();
+					try{
+						user.client.end();
+					} catch(e){
+						console.log(e);
+					}
 					user.socket.emit('remote closed',{disconnected: true});
 				})
 				.on('web input', function(data){
@@ -147,7 +154,7 @@ sio
 
 					var user = session.getSessionById(cookie['vmud.sid']);
 
-					if(user.connected && typeof user.client == 'object' ){
+					if(user.client_connected && typeof user.client == 'object' ){
 						user.client.write(data + "\n");
 					} else {
 						console.log('Connection closed...');
@@ -159,10 +166,11 @@ sio
 					var user = session.getSessionById(cookie['vmud.sid']);
 					if(user !== null){
 						console.log('A websocket with sessionID ' + user.sessionId + ' disconnected!');
-						user.connected = false;
 						session.unactivate(user.sessionId);
 					}
 				});
 		});
 
-
+process.on('uncaughtException',function(error){
+	console.log('' + error );
+});
