@@ -1,8 +1,59 @@
 <div class="container">
-	<div id="screen"></div>
-	<input type="text" id="cmd" value="" />
+	<div id="menu">
+		<ul>
+			<li>
+				Connection
+				<ul>
+					<li><a href="#" data-action="connect">Quick connect</a></li>
+					<li><a href="#" data-action="connection">Open stored connection</a></li>
+					<li><a href="#" data-action="manage_connection">Manage connections</a></li>
+					<li><a href="#" data-action="disconnect">Disconnect</a></li>
+				</ul>
+			</li>
+			<!--<li>-->
+				<!--Alias-->
+				<!--<ul>-->
+					<!--<li>Quick connect</li>-->
+					<!--<li>Open stored connection</li>-->
+					<!--<li>Manage connections</li>-->
+				<!--</ul>-->
+			<!--</li>-->
+			<!--<li>-->
+				<!--Triggers-->
+				<!--<ul>-->
+					<!--<li>Quick connect</li>-->
+					<!--<li>Open stored connection</li>-->
+					<!--<li>Manage connections</li>-->
+				<!--</ul>-->
+			<!--</li>-->
+			<!--<li>-->
+				<!--Variables-->
+				<!--<ul>-->
+					<!--<li>Quick connect</li>-->
+					<!--<li>Open stored connection</li>-->
+					<!--<li>Manage connections</li>-->
+				<!--</ul>-->
+			<!--</li>-->
+		</ul>
+	</div>
+	<div class="control">
+		<div id="screen"></div>
+		<input type="text" id="cmd" value="" />
+	</div>
+	<div class="panel">
+		<input type="button" value="Connect" id="connect" />
+		<input type="button" value="Disconnect" id="disconnect" />
+	</div>
+	<div class="clear"></div>
 </div>
-<div class="panel">
-	<input type="button" value="Connect" id="connect" />
-	<input type="button" value="Disconnect" id="disconnect" />
+
+<div id="dialog-connect" title="Quick connect" class="hidden">
+	<form>
+		<fieldset>
+			<label for="host">Host</label>
+			<input type="text" name="host" id="host" class="text ui-widget-content ui-corner-all" />
+			<label for="port">Port</label>
+			<input type="text" name="port" id="port" value="6000" class="text ui-widget-content ui-corner-all" />
+		</fieldset>
+	</form>
 </div>

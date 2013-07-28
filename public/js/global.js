@@ -23,7 +23,7 @@ function debug(str){
 	}
 	console.log('----- END -----');
 }
-var strip_char = [65533, 1, 0];
+
 
 $(document)
 	.ready(function(){
@@ -31,76 +31,27 @@ $(document)
 			socket 	= io.connect(url),
 			cmd		= $('#cmd'),
 			screen	= $('#screen'),
-			connected = false;
+			menu 	= $('#menu'),
+			mud 	= new vMud(url, socket, cmd, screen, menu)
 			;
-
-		$('*').keydown(function(e){
-			e.stopPropagation();
-			switch(e.which){
-				case 8:
-					if(!cmd.is(':focus')){
-						e.preventDefault();
+		$( "#dialog-connect" )
+			.dialog({
+				autoOpen: false,
+				height: 300,
+				width: 350,
+				modal: true,
+				buttons: {
+					Connect: function() {
+						var connection = {};
+						$(this).find('form input[type="text"]').each(function(){
+							connection[$(this).attr('name')] = $.trim($(this).val());
+						});
+						$( this ).dialog( "close" );
+						mud.connect(connection);
+					},
+					Cancel: function() {
+						$( this ).dialog( "close" );
 					}
-					break;
-
-				default:
-//					console.log(e.which);
-			}
-		});
-
-		socket.emit('setUserInfo',{});
-
-		$('.panel')
-			.on('click', '#connect', function(){
-				if(!connected){
-					socket.emit('connectTo', {host: 'leu.mclink.it', port: 6000});
-					connected = true;
-					$('#cmd').focus();
-				} else {
-					screen.systemMsg('Already connected');
 				}
-			})
-			.on('click', '#disconnect', function(){
-				socket.emit('close remote connection',{});
-			})
-
-		;
-
-		cmd.focus()
-			.commandLine({
-				socket: socket,
-				screen: screen
 			});
-
-		socket
-			.on('socket output', function(data){
-				var div  = $('#screen'),
-					text = data.data;
-
-				if(text.indexOf(String.fromCharCode(65533)) !== false){
-					var tmp = '';
-					for(var i = 0 ; i < text.length ; i++){
-						if($.inArray(text.charCodeAt(i), strip_char) < 0){
-							tmp += text.charAt(i);
-						}
-					}
-					text = tmp;
-
-					if(/^Password:/.test(text)){
-						cmd.val('').attr('type', 'password');
-					}
-				}
-
-				div
-					.html(div.html() + text)
-					.scrollTop(div[0].scrollHeight);;
-			})
-			.on('system output', function(data){
-				screen.systemMsg(data.data);
-			})
-			.on('remote closed', function(){
-				connected = false;
-				screen.systemMsg('#Disconnected');
-			})
-		;
 	});

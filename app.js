@@ -147,6 +147,7 @@ sio
 					} catch(e){
 						console.log(e);
 					}
+					user.client_connected = false;
 					user.socket.emit('remote closed',{disconnected: true});
 				})
 				.on('web input', function(data){

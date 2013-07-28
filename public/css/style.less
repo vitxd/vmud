@@ -1,19 +1,93 @@
 body,html{
-	margin:10px 0;
-	padding:0;
+  margin:10px 0;
+  padding:0;
+  font-size: 12px;
 }
-
+.clear{
+  clear:both;
+  height:0;
+}
+.hidden{
+  display:none;
+}
 .container {
-	float:left;
-	padding: 0 10px;
-	#screen{
+	//float:left;
+    max-width: 1400px;
+    margin: auto;
+
+  #menu{
+    position: absolute;
+    top: 0;
+    font-family: courier;
+    font-size: 13px;
+    ul{
+      list-style: none;
+      padding: 0;
+      margin: 2px 0;
+      li{
+        display: inline;
+        position:relative;
+        padding: 2px 15px;
+        margin: 0;
+        white-space: nowrap;
+        a{
+          color: black;
+          text-decoration: none;
+          margin: 4px 0;
+          padding: 2px 5px 0!important;
+          &:hover{
+            color: white;
+          }
+        }
+        &:nth-child(1){
+          padding: 2px 0;
+        }
+        &:hover,
+        &.hover{
+          cursor: default;
+          color: white;
+          background: black;
+        }
+        &.hover{
+          ul{
+            display: block;
+          }
+        }
+        ul{
+          display:none;
+          position: absolute;
+          top: 18px;
+          left: 0;
+          background: white;
+          border: 1px solid #ccc;
+          li{
+            &:nth-child(1){
+              border-top: none;
+            }
+            display: block;
+            color: black;
+            padding: 2px 0!important;
+            border-top: 1px solid #ccc;
+          }
+        }
+      }
+    }
+  }
+
+
+  .control{
+    float: left;
+    margin: 0 0.714285% 0 0;   /*  10px ÷ 660px = .01515151 */
+    width: 64.285714%;   /* 900px ÷ 1400px = .63636363 */
+    #screen{
 		margin:0;
 		padding: 10px;
 		background-color: #000;
-		width: 1024px;
+//		width: inherit;
 		height: 708px;
 		color: #ccc;
-		overflow:auto;
+		overflow-y:auto;
+		overflow-x:none;
 		font-family: courier;
 		font-size: 12px;
         .command-message{
@@ -30,12 +104,20 @@ body,html{
         }
 	}
 	#cmd{
-		width: 1024px;
+		width: 100%;
 	}
+  }
+  .panel {
+    border: 1px solid black;
+    float: right;
+//    margin: 0 0.714285%;   /*  10px ÷ 660px = .01515151 */
+    width: 34%;
+    height: 728px;
+  }
 }
-.panel {
-	border: 1px solid black;
-	width: 300px;
-	height: 728px;
-	float: left;
+
+.ui-widget-content{
+  input.text { margin-bottom:12px; width:95%; padding: .4em; }
+  fieldset { padding:0; border:0; margin-top:25px; }
+  h1 { font-size: 1.2em; margin: .6em 0; }
 }
