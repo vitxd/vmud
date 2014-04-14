@@ -24,34 +24,39 @@ function debug(str){
 	console.log('----- END -----');
 }
 
-
-$(document)
-	.ready(function(){
-		var url 	= 'http://localhost/',
-			socket 	= io.connect(url),
-			cmd		= $('#cmd'),
-			screen	= $('#screen'),
-			menu 	= $('#menu'),
-			mud 	= new vMud(url, socket, cmd, screen, menu)
-			;
-		$( "#dialog-connect" )
-			.dialog({
-				autoOpen: false,
-				height: 300,
-				width: 350,
-				modal: true,
-				buttons: {
-					Connect: function() {
-						var connection = {};
-						$(this).find('form input[type="text"]').each(function(){
-							connection[$(this).attr('name')] = $.trim($(this).val());
-						});
-						$( this ).dialog( "close" );
-						mud.connect(connection);
-					},
-					Cancel: function() {
-						$( this ).dialog( "close" );
+$.fn.tableSelect = function(options){
+	var config = $.extend(true,{
+		onClick 	: function(row, e){},
+		onDblClick	: function(row, e){},
+		multi 		: false
+	}, options || {});
+	return $(this).each(function(){
+		$(this)
+			.on('mouseover', 'tbody tr', function(){
+				$(this).addClass('hover');
+			})
+			.on('mouseout', 'tbody tr', function(){
+				$(this).removeClass('hover');
+			})
+			.on('click', 'tbody tr', function(e){
+				if($(this).hasClass('click')){
+					$(this).removeClass('click');
+				} else {
+					if(!config.multi){
+						$(this).siblings('tr').removeClass('click');
 					}
+					$(this).addClass('click');
 				}
-			});
+				if(typeof config.onClick == 'function'){
+					config.onClick($(this), e);
+				}
+			})
+			.on('dblclick', 'tbody tr', function(e){
+				$(this).siblings('tr').removeClass('click');
+				if(typeof config.onClick == 'function'){
+					config.onDblClick($(this), e);
+				}
+			})
+		;
 	});
+};

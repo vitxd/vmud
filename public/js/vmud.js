@@ -10,6 +10,8 @@ vMud = function(url, socket, cmd, screen, menu){
 	this._initCommandline();
 	this._initWebSocket();
 	this.socket.emit('setUserInfo',{});
+
+	this.menu.setMud(this);
 };
 
 
@@ -105,4 +107,12 @@ vMud.prototype.connect = function(data){
 
 vMud.prototype.disconnect = function(){
 	this.socket.emit('close remote connection');
+};
+
+vMud.prototype.connectTo = function(id){
+	if(!this.connected){
+		this.socket.emit('open stored connection',{id : id});
+	} else {
+		this.screen.systemMsg('Already connected');
+	}
 };

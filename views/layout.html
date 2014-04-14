@@ -5,6 +5,7 @@
 		<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/black-tie/jquery-ui.min.css" />
 		<script type="text/javascript" charset="utf-8" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
 		<script type="text/javascript" charset="utf-8" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+		<script type="text/javascript" charset="utf-8" src="js/handlebar.js"></script>
 
 		<script type="text/javascript">
 			less = {
@@ -21,6 +22,11 @@
 				rootpath: ":/a.com/"// a path to add on to the start of every url
 									//resource
 			};
+
+
+
+
+
 		</script>
 
 
@@ -32,6 +38,19 @@
 		{{#each libraries}}
 		<script type="text/javascript" charset="utf-8" src="{{this}}"></script>
 		{{/each}}
+
+		<script type="text/javascript" charset="utf-8">
+			$(document)
+				.ready(function(){
+					var url 	= 'http://localhost/',
+							socket 	= io.connect(url),
+							cmd		= $('#cmd'),
+							screen	= $('#screen'),
+							menu 	= $('#menu'),
+							mud 	= new vMud(url, socket, cmd, screen, menu)
+							;
+				});
+		</script>
 	</head>
 	<body>
 		{{{body}}}

@@ -1,9 +1,10 @@
 View = function(response){
 	this.response = response;
+	this.code = 200;
 	this.obj = {
-		  layout : 'layout.html'
-		, locals : {
-		 	libraries : []
+		layout : 'layout.html',
+		locals : {
+			libraries : []
 		}
 	}
 };
@@ -11,6 +12,11 @@ View = function(response){
 View.prototype.set = function(key, value){
 	if(typeof key === 'string' && key.length && key != 'layout' && key != 'libraries')
 		this.obj.locals[key] = value;
+	return this;
+};
+
+View.prototype.setCode = function(code){
+	this.code = code;
 	return this;
 };
 
@@ -25,12 +31,13 @@ View.prototype.addLibrary = function(library){
 }
 
 View.prototype.display = function(filename){
+	this.response.status(this.code);
 	this.response.render(filename, this.obj);
 	return this;
 }
 
 View.prototype.debug = function(key){
-	console.log(this.obj.locals[key]);
+	console.log('[VIEW-DEBUG] Key (' + key + '): ' + this.obj.locals[key]);
 }
 
 module.exports = View;

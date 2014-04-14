@@ -5,35 +5,25 @@
 				Connection
 				<ul>
 					<li><a href="#" data-action="connect">Quick connect</a></li>
-					<li><a href="#" data-action="connection">Open stored connection</a></li>
+					<li><a href="#" data-action="connections">Open stored connection</a></li>
 					<li><a href="#" data-action="manage_connection">Manage connections</a></li>
 					<li><a href="#" data-action="disconnect">Disconnect</a></li>
 				</ul>
 			</li>
-			<!--<li>-->
-				<!--Alias-->
-				<!--<ul>-->
-					<!--<li>Quick connect</li>-->
-					<!--<li>Open stored connection</li>-->
-					<!--<li>Manage connections</li>-->
-				<!--</ul>-->
-			<!--</li>-->
-			<!--<li>-->
-				<!--Triggers-->
-				<!--<ul>-->
-					<!--<li>Quick connect</li>-->
-					<!--<li>Open stored connection</li>-->
-					<!--<li>Manage connections</li>-->
-				<!--</ul>-->
-			<!--</li>-->
-			<!--<li>-->
-				<!--Variables-->
-				<!--<ul>-->
-					<!--<li>Quick connect</li>-->
-					<!--<li>Open stored connection</li>-->
-					<!--<li>Manage connections</li>-->
-				<!--</ul>-->
-			<!--</li>-->
+			<li>
+				Tools
+				<ul>
+					<li>
+						<a href="#" data-action="alias">Alias</a>
+					</li>
+					<li>
+						<a href="#" data-action="trigger">Trigger</a>
+					</li>
+					<li>
+						<a href="#" data-action="trigger">Variables</a>
+					</li>
+				</ul>
+			</li>
 		</ul>
 	</div>
 	<div class="control">
@@ -57,3 +47,27 @@
 		</fieldset>
 	</form>
 </div>
+<div id="dialog-connections" title="Connections" class="hidden">
+	<table class="connections">
+		<thead>
+			<tr>
+				<td></td>
+				<td>Name</td>
+				<td>Host</td>
+				<td>Port</td>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+</div>
+
+<script id="connection-template" type="text">
+{%#each connections%}
+<tr data-id="{%id%}">
+	<td><input type="checkbox" name="connection[{%id%}]" /></td>
+	<td>{%name%}</td>
+	<td>{%host%}</td>
+	<td>{%port%}</td>
+</tr>
+{%/each%}
+</script>

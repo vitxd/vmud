@@ -38,11 +38,50 @@ Router.prototype.isLogged = function(){
 };
 
 Router.prototype._init = function(){
-	this.index();
+	switch(this.url){
+		case '/connections':
+			this.connections();
+			break;
+		case '/':
+			this.index();
+			break;
+		default:
+			this.notFound();
+	}
+};
+
+Router.prototype.connections = function(){
+	var connections = {
+		connections : [
+			{
+				id   : 123,
+				name : 'test',
+				host : 'leu.mclink.it',
+				post : 6000
+			},
+			{
+				id   : 123,
+				name : 'test',
+				host : 'leu.mclink.it',
+				post : 6000
+			},
+			{
+				id   : 123,
+				name : 'test',
+				host : 'leu.mclink.it',
+				post : 6000
+			}
+		]
+	};
+	this.res.json(connections);
 };
 
 Router.prototype._setUser = function(user){
 	//this.session.user 	= user;
+};
+
+Router.prototype.notFound = function(){
+	this.view.setLayout('').set('url', this.url).setCode(404).display('404.html');
 };
 
 Router.prototype.index = function(){
@@ -53,7 +92,6 @@ Router.prototype.index = function(){
 		.addLibrary('/js/cmd.js')
 		.addLibrary('/js/global.js')
 		.display('index.html');
-	this.view.debug('hello');
 };
 
 Router.prototype._getUser = function(){
