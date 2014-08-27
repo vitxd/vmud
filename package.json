@@ -8,7 +8,7 @@
     "express": "~2.5.11",
     "cookie": "~0.1.0",
     "handlebars": "~1.0.12",
-    "socket.io": "~0.9.16",
+    "socket.io": "~0.9.16"
   },
   "devDependencies": {},
   "scripts": {
